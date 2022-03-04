@@ -24,13 +24,27 @@ def runJob():
 
         sample['tree'] = TChain("Events")
         for f in sample['name']:
+            print(f)
             sample['tree'].Add(f)
 
+	print('Samples = ')
+	print(sample['tree'])
+	print(sample.keys())
         if config.structure[sampleName]['isSignal']==1:
             dataloader.AddSignalTree(sample['tree'], 1.0)
         else:
             dataloader.AddBackgroundTree(sample['tree'], 1.0)
         # output_dim += 1
+
+    #input = TFile.Open('/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/Summer16_102X_nAODv7_Full2016v7/MCl1loose2016v7__MCCorr2016v7__l2loose__l2tightOR2016v7/nanoLatino_DYJetsToLL_M-50_ext2__part9.root')
+    #input = TFile.Open('/eos/user/f/fernanpe/WW_skimmedTrees_nanoAODv7/2016/nanoLatino_DYJetsToLL_M-50_ext2__part9.root')
+    #TFile* signal = new TFile("");
+    #TTree* sigTree = (TTree*)(signal->Get("tree"));
+    #dataloader.AddBackgroundTree(input.Get("Events"), 1.0)
+
+    #TFile* data = new TFile("/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/Summer16_102X_nAODv7_Full2016v7/MCl1loose2016v7__MCCorr2016v7__l2loose__l2tightOR2016v7/nanoLatino_DYJetsToLL_M-50_ext2__part9.root");
+    #TTree* dataTree = (TTree*)(data->Get("Events"));
+
     dataloader.PrepareTrainingAndTestTree(TCut(config.cut),'SplitMode=Random::SplitSeed=10:NormMode=EqualNumEvents')
 
     factory.BookMethod(dataloader, TMVA.Types.kBDT, "BDTG4D3",   "!H:!V:NTrees=500:MinNodeSize=1.5%:BoostType=Grad:Shrinkage=0.05:UseBaggedBoost:GradBaggingFraction=0.5:nCuts=500:MaxDepth=3" );
