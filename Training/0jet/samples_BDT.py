@@ -32,13 +32,13 @@ except NameError:
 ################################################
 
 mcProduction_2016 = 'Summer16_102X_nAODv7_Full2016v7'
-mcSteps_2016 = 'MCl1loose2016v7__MCCorr2016v7__l2loose__l2tightOR2016v7{var}'
+mcSteps_2016 = 'MCl1loose2016v7__MCCorr2016v7__l2loose__l2tightOR2016v7__Skim2016{var}'
 
 mcProduction_2017 = 'Fall2017_102X_nAODv7_Full2017v7'
-mcSteps_2017 = 'MCl1loose2017v7__MCCorr2017v7__l2loose__l2tightOR2017v7{var}'
+mcSteps_2017 = 'MCl1loose2017v7__MCCorr2017v7__l2loose__l2tightOR2017v7__Skim2017{var}'
 
 mcProduction_2018 = 'Autumn18_102X_nAODv7_Full2018v7'
-mcSteps_2018 = 'MCl1loose2018v7__MCCorr2018v7__l2loose__l2tightOR2018v7{var}'
+mcSteps_2018 = 'MCl1loose2018v7__MCCorr2018v7__l2loose__l2tightOR2018v7__Skim2018{var}'
 
 ##############################################
 ###### Tree base directory for the site ######
@@ -49,7 +49,7 @@ SITE=os.uname()[1]
 if    'iihe' in SITE:
   treeBaseDir = '/pnfs/iihe/cms/store/user/xjanssen/HWW2015'
 elif  'cern' in SITE:
-  treeBaseDir = '/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano'
+  treeBaseDir = '/eos/cms/store/group/phys_muon/fernanpe/TnPTrees'
 
 def makeMCDirectory_2016(var=''):
     if var:
@@ -74,7 +74,7 @@ mcDirectory_2017 = makeMCDirectory_2017()
 mcDirectory_2018 = makeMCDirectory_2018()
 
 #print("Directory: " + mcDirectory_2016)
-directory_2016 = '/eos/user/f/fernanpe/WW_skimmedTrees_nanoAODv7/2016'
+#directory_2016 = '/eos/user/f/fernanpe/WW_skimmedTrees_nanoAODv7/2016'
 #print(directory_2016)
 
 ################################################
@@ -104,7 +104,7 @@ bVeto_2016 = 'Sum$(CleanJet_pt > 20. && abs(CleanJet_eta) < 2.5 && Jet_btagDeepB
 bVetoSF_2016 = 'TMath::Exp(Sum$(TMath::Log((CleanJet_pt>20 && abs(CleanJet_eta)<2.5)*Jet_btagSF_deepcsv_shape[CleanJet_jetIdx]+1*(CleanJet_pt<20 || abs(CleanJet_eta)>2.5))))'
 bReq_2016 = 'Sum$(CleanJet_pt > 30. && abs(CleanJet_eta) < 2.5 && Jet_btagDeepB[CleanJet_jetIdx] > '+btagWP_2016+') >= 1'
 bReqSF_2016 = 'mtw2>30 && mll>50 && ((Sum$(CleanJet_pt > 30.) == 0 && !bVeto_2016) || bReq_2016)'
-topcr_2016 = 'mtw2>30 && mll>50 && ((Sum$(CleanJet_pt > 30.) == 0 && !bVeto_2016) || bReq_2016)'
+topcr_2016 = '((Sum$(CleanJet_pt > 30.) == 0 && !bVeto_2016) || bReq_2016)'
 btagSF_2016 = '(bVeto_2016 || (topcr_2016 && Sum$(CleanJet_pt > 30.) == 0))*bVetoSF_2016 + (topcr_2016 && Sum$(CleanJet_pt > 30.) > 0)*bReqSF_2016'
 '''
 # 2017
@@ -131,7 +131,7 @@ btagSF_2018 = '(bVeto_2018 || (topcr_2018 && Sum$(CleanJet_pt > 30.) == 0))*bVet
 
 Jet_PUIDSF = 'TMath::Exp(Sum$((Jet_jetId>=2)*TMath::Log(Jet_PUIDSF_loose)))'
 
-SFweight_2016 = ' * '.join(['SFweight2l', LepWPCut_2016, 'LepSF2l__ele_' + eleWP_2016 + '__mu_' + muWP_2016, btagSF_2016, 'PrefireWeight', Jet_PUIDSF]) 
+SFweight_2016 = ' * '.join(['SFweight2l', LepWPCut_2016, 'LepSF2l__ele_' + eleWP_2016 + '__mu_' + muWP_2016, 'PrefireWeight', Jet_PUIDSF]) 
 #SFweight_2017 = ' * '.join(['SFweight2l', LepWPCut_2017, 'LepSF2l__ele_' + eleWP_2017 + '__mu_' + muWP_2017, btagSF_2017, 'PrefireWeight', Jet_PUIDSF])
 #SFweight_2018 = ' * '.join(['SFweight2l', LepWPCut_2018, 'LepSF2l__ele_' + eleWP_2018 + '__mu_' + muWP_2018, btagSF_2018, Jet_PUIDSF])
 
@@ -152,7 +152,7 @@ useDYHT = True
 #files = nanoGetSampleFiles(directory_2016, 'DYJetsToLL_M-50_ext2') + \
 #    nanoGetSampleFiles(directory_2016, 'DYJetsToLL_M-10to50')
 
-files = nanoGetSampleFiles(directory_2016, 'DYJetsToLL_M-10to50')
+files = nanoGetSampleFiles(mcDirectory_2016, 'DYJetsToLL_M-10to50')
 
 samples['DY_2016'] = {
     'name': files,
@@ -179,14 +179,14 @@ if useDYHT :
 				+ nanoGetSampleFiles(directory_2016, 'DYJetsToLL_M-50_HT-1200to2500') #\
 #				+ nanoGetSampleFiles(directory_2016, 'DYJetsToLL_M-50_HT-2500toInf')
 '''
-handle = open('%s/src/PlotsConfigurations/Configurations/patches/DYrew30.py' % os.getenv('CMSSW_BASE'),'r')
-exec(handle)
-handle.close()
-DY_NLO_pTllrw_2016 = '('+DYrew['2016']['NLO'].replace('x', 'getGenZpt_OTF')+')*(nCleanGenJet == 0)+1.0*(nCleanGenJet > 0)'
-DY_LO_pTllrw_2016 = '('+DYrew['2016']['LO'].replace('x', 'getGenZpt_OTF')+')*(nCleanGenJet == 0)+1.0*(nCleanGenJet > 0)'
+# handle = open('%s/src/PlotsConfigurations/Configurations/patches/DYrew30.py' % os.getenv('CMSSW_BASE'),'r')
+# exec(handle)
+# handle.close()
+# DY_NLO_pTllrw_2016 = '('+DYrew['2016']['NLO'].replace('x', 'getGenZpt_OTF')+')*(nCleanGenJet == 0)+1.0*(nCleanGenJet > 0)'
+# DY_LO_pTllrw_2016 = '('+DYrew['2016']['LO'].replace('x', 'getGenZpt_OTF')+')*(nCleanGenJet == 0)+1.0*(nCleanGenJet > 0)'
 
-addSampleWeight(samples,'DY_2016','DYJetsToLL_M-50_ext2', DY_NLO_pTllrw_2016)
-addSampleWeight(samples,'DY_2016','DYJetsToLL_M-10to50', DY_NLO_pTllrw_2016)
+# addSampleWeight(samples,'DY_2016','DYJetsToLL_M-50_ext2', DY_NLO_pTllrw_2016)
+# addSampleWeight(samples,'DY_2016','DYJetsToLL_M-10to50', DY_NLO_pTllrw_2016)
 '''
 if useDYHT :
     # Remove high HT from inclusive samples
@@ -321,7 +321,7 @@ if useDYHT :
 
 #xxxxxxx 2016 xxxxxxx
 samples['WW_2016'] = {
-    'name': nanoGetSampleFiles(mcDirectory_2016, 'WW-LO'),
+    'name': nanoGetSampleFiles(mcDirectory_2016, 'WW-LO') + nanoGetSampleFiles(mcDirectory_2016, 'WW-LO_ext1'),
     'weight': mcCommonWeight_2016+ '*nllW',
     'FilesPerJob': 4
 }
